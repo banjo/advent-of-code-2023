@@ -15,6 +15,42 @@ const numberMap: Record<string, number> = {
 
 main();
 
+class PossibleAnswers {
+    possibleAnswers: string[];
+
+    constructor() {
+        this.possibleAnswers = [];
+    }
+
+    addChar(char: string) {
+        this.possibleAnswers = this.possibleAnswers.map((str) => {
+            return str + char;
+        });
+        this.possibleAnswers.push(char);
+    }
+
+    reset() {
+        this.possibleAnswers = [];
+    }
+
+    filter(fn: (str: string) => boolean) {
+        this.possibleAnswers = this.possibleAnswers.filter(fn);
+        return this.possibleAnswers;
+    }
+
+    isEmpty() {
+        return this.possibleAnswers.length === 0;
+    }
+
+    get() {
+        return structuredClone(this.possibleAnswers);
+    }
+
+    get length() {
+        return this.possibleAnswers.length;
+    }
+}
+
 async function main() {
     const content = await getContent();
 
@@ -22,13 +58,13 @@ async function main() {
     content.split("\n").forEach((line) => {
         let firstNumber: Maybe<number> = undefined;
         let lastNumber: Maybe<number> = undefined;
-        let currentAnswers: string[] = [];
+        const possibleAnswers = new PossibleAnswers();
 
         let index = -1;
         for (const char of line) {
             index++;
             if (isNumber(char)) {
-                currentAnswers = [];
+                possibleAnswers.reset();
 
                 if (!isDefined(firstNumber)) {
                     firstNumber = Number(char);
@@ -40,22 +76,21 @@ async function main() {
                 continue;
             }
 
-            currentAnswers = currentAnswers.map((str) => {
-                return str + char;
-            });
-            currentAnswers.push(char);
+            possibleAnswers.addChar(char);
+            possibleAnswers.filter(isPartOfNumber);
 
-            currentAnswers = currentAnswers.filter(isPartOfNumber);
-
-            if (isEmpty(currentAnswers)) {
+            if (possibleAnswers.isEmpty()) {
                 continue;
             }
 
-            const answers = currentAnswers.filter(isNumberString);
+            const answers = possibleAnswers.get().filter(isNumberString);
 
             // if a new word has started that is later but the first one is complete: oneight -> 8
-            if (!isEmpty(answers) && answers.length !== currentAnswers.length) {
-                let nonCompleteAnswers = currentAnswers.filter(
+            if (
+                !isEmpty(answers) &&
+                answers.length !== possibleAnswers.length
+            ) {
+                let nonCompleteAnswers = possibleAnswers.filter(
                     (str) => !isNumberString(str)
                 );
                 let hasFutureValue = false;
@@ -83,16 +118,12 @@ async function main() {
 
                     firstNumber = getNumber(answer);
                     lastNumber = getNumber(answer);
-                    currentAnswers = currentAnswers.filter(
-                        (v) => !isNumberString(v)
-                    );
+                    possibleAnswers.filter((v) => !isNumberString(v));
                     continue;
                 }
 
                 if (hasFutureValue) {
-                    currentAnswers = currentAnswers.filter(
-                        (v) => !isNumberString(v)
-                    );
+                    possibleAnswers.filter((v) => !isNumberString(v));
                     continue;
                 }
             }
@@ -106,13 +137,13 @@ async function main() {
                 const number = getNumber(longestAnswer);
 
                 if (!isDefined(firstNumber)) {
-                    currentAnswers = [];
+                    possibleAnswers.reset();
                     firstNumber = number;
                     lastNumber = number;
                     continue;
                 }
 
-                currentAnswers = [];
+                possibleAnswers.reset();
                 lastNumber = number;
             }
         }
