@@ -1,8 +1,8 @@
-import { first, isEmpty, produce } from "@banjoanton/utils";
+import { first, isEmpty, memoize, produce } from "@banjoanton/utils";
 import fs from "fs";
 
 const rows = fs
-    .readFileSync("./test.txt", "utf-8")
+    .readFileSync("./input.txt", "utf-8")
     .trim()
     .split("\n")
     .filter((s) => !isEmpty(s))
@@ -13,10 +13,12 @@ const rows = fs
         return [updatedSchema, updatedOrder];
     });
 
+const memoizedSolve = memoize(solve);
+
 let total = 0;
 for (const [schema, orderString] of rows) {
     const order = orderToArray(orderString);
-    const arrangements = solve(schema, order);
+    const arrangements = memoizedSolve(schema, order);
     total += arrangements;
 }
 
@@ -27,7 +29,7 @@ function solve(schema, order) {
         return 1;
     }
 
-    if (isEmpty(order) && !order.some((v) => v === "#")) {
+    if (isEmpty(order) && !schema.split("").some((v) => v === "#")) {
         return 1;
     }
 
@@ -35,42 +37,38 @@ function solve(schema, order) {
 
     switch (firstChar) {
         case ".": {
-            return solve(schema.slice(1), order);
+            return memoizedSolve(schema.slice(1), order);
         }
         case "?": {
             const restOfSchema = schema.slice(1);
             const first = "." + restOfSchema;
-            const firstAmount = solve(first, order);
+            const firstAmount = memoizedSolve(first, order);
 
             const second = "#" + restOfSchema;
-            const secondAmount = solve(second, order);
+            const secondAmount = memoizedSolve(second, order);
             return firstAmount + secondAmount;
         }
         case "#": {
             const orderLength = first(order);
+            const hasLongEnoughSchema = schema.length >= orderLength;
+            const sliceIncludesDots = schema
+                .slice(0, orderLength)
+                .includes(".");
+            const isAtEndOfSchema = schema.length === orderLength;
+            const endsWithHash = schema[orderLength] === "#";
 
-            if (schema.length < orderLength) {
-                return 0;
+            const shouldContinue = isAtEndOfSchema || !endsWithHash;
+
+            if (hasLongEnoughSchema && !sliceIncludesDots && shouldContinue) {
+                const updatedOrder = produce(order, (draft) => {
+                    draft.shift();
+                });
+                return memoizedSolve(
+                    schema.slice(orderLength + 1),
+                    updatedOrder
+                );
             }
-
-            const partOfSchema = schema.slice(0, orderLength);
-            const hasDots = partOfSchema.split("").some((c) => c === ".");
-
-            if (hasDots) {
-                return 0;
-            }
-
-            const brokenAmount = schema.match(/#+/)[0].length;
-
-            if (brokenAmount > orderLength) {
-                return 0;
-            }
-
-            const updatedOrder = produce(order, (draft) => {
-                draft.shift();
-            });
-
-            return solve(schema.slice(orderLength + 1), updatedOrder);
+            return 0;
         }
         default: {
             return 0;
