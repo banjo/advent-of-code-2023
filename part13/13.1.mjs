@@ -11,13 +11,20 @@ let total = 0;
 
 for (const grid of grids) {
     const score = handleGrid(grid);
+    total += score;
 }
+
+console.log(total);
 
 function handleGrid(grid) {
     const horizontal = checkMirrors(grid);
-    const vertical = checkMirrors(swap(grid));
 
-    console.log({ horizontal, vertical });
+    if (horizontal) {
+        return (horizontal - 1) * 100;
+    }
+
+    const vertical = checkMirrors(swap(grid));
+    return vertical - 1;
 }
 
 function swap(grid) {
