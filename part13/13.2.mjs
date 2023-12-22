@@ -11,15 +11,15 @@ let total = 0;
 
 for (const grid of grids) {
     const invalidResult = handleGrid(grid);
-    iterate(grid, (grid, setIsDone) => {
+    iterate(grid, (grid) => {
         const result = handleGrid(grid, invalidResult);
 
         if (result === null) {
-            return;
+            return false;
         }
 
         total += result.score;
-        setIsDone();
+        return true;
     });
 }
 
@@ -40,21 +40,15 @@ function iterate(grid, handler) {
 
     const change = (point) => (point === "." ? "#" : ".");
 
-    let isDone = false;
-    const setIsDone = () => {
-        isDone = true;
-    };
-
     for (let i = 0; i < verticalLength; i++) {
         for (let j = 0; j < horizontalLength; j++) {
-            if (isDone) return true;
-
             const element = grid[i][j];
             const updatedGrid = produce(grid, (draft) => {
                 draft[i][j] = change(element);
             });
 
-            handler(updatedGrid, setIsDone);
+            const isDone = handler(updatedGrid);
+            if (isDone) return true;
         }
     }
 
