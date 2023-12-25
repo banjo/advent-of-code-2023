@@ -2,7 +2,7 @@ import { attempt, isUndefined } from "@banjoanton/utils";
 import fs from "fs";
 
 const originalGrid = fs
-    .readFileSync("./example.txt", "utf-8")
+    .readFileSync("./input.txt", "utf-8")
     .trim()
     .split("\n")
     .map((line) => line.split(""));
@@ -25,22 +25,44 @@ const iteratorMap = {
     },
 };
 
-let grid = originalGrid;
-for (let i = 0; i < 1000000000; i++) {
-    console.log(i);
-    Object.keys(iteratorMap).forEach((key) => {
-        grid = iterate(grid, key, handler);
-    });
+const ITERATIONS = 1000000000;
+const { loopLength, iterated, grid: loopedGrid } = getLoopLength(originalGrid);
+const leftToLoop = (ITERATIONS - iterated) % loopLength;
+
+let grid = loopedGrid;
+for (let j = 0; j < leftToLoop; j++) {
+    grid = cycle(grid);
 }
 
 console.log(getScore(grid));
 
-function writeToFile(grid) {
-    let str = "";
-    grid.forEach((line) => {
-        str += line.join("") + "\n";
+function getLoopLength(originalGrid) {
+    const iterated = [];
+    let loopLength = 0;
+    let i = -1;
+    let grid = originalGrid;
+    while (true) {
+        i++;
+
+        const key = grid.map((l) => l.join("")).join("");
+        if (iterated.includes(key)) {
+            const index = iterated.indexOf(key);
+            loopLength = iterated.length - index;
+            break;
+        }
+        grid = cycle(grid);
+        iterated.push(key);
+    }
+
+    return { loopLength, iterated: i, grid };
+}
+
+function cycle(grid) {
+    Object.keys(iteratorMap).forEach((key) => {
+        grid = iterate(grid, key, handler);
     });
-    fs.writeFileSync("tjo.txt", str);
+
+    return grid;
 }
 
 function handler(element, grid, y, x, direction) {
