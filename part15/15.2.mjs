@@ -24,7 +24,7 @@ words.forEach((word) => {
     }
 
     boxes[hashed] = box;
-}, 0);
+});
 
 let total = 0;
 Object.entries(boxes).forEach(([index, box]) => {
