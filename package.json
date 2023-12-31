@@ -11,11 +11,12 @@
   "license": "ISC",
   "devDependencies": {
     "@banjoanton/node-utils": "^0.0.5",
-    "@banjoanton/utils": "^0.1.63",
-    "tsx": "^4.6.2",
-    "typescript": "^5.3.2"
+    "@banjoanton/utils": "^0.1.68",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
   },
   "dependencies": {
+    "bun": "^1.0.20",
     "compute-lcm": "^1.1.2",
     "tinyqueue": "^2.0.3"
   }
