@@ -34,7 +34,6 @@ console.log(inside + result.points.length);
 
 // picks theorem
 function picks(area, points) {
-    // int(abs(area) - 0.5 * len(points) + 1);
     return Math.abs(area) - 0.5 * points.length + 1;
 }
 
