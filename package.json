@@ -1,23 +1,23 @@
 {
-  "name": "advent-of-code-2023",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@banjoanton/node-utils": "^0.0.5",
-    "@banjoanton/utils": "^0.1.68",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
-  },
-  "dependencies": {
-    "bun": "^1.0.20",
-    "compute-lcm": "^1.1.2",
-    "tinyqueue": "^2.0.3"
-  }
+    "name": "advent-of-code-2023",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@banjoanton/node-utils": "^0.0.5",
+        "@banjoanton/utils": "^0.1.69",
+        "tsx": "^4.7.0",
+        "typescript": "^5.3.3"
+    },
+    "dependencies": {
+        "bun": "^1.0.20",
+        "compute-lcm": "^1.1.2",
+        "tinyqueue": "^2.0.3"
+    }
 }
