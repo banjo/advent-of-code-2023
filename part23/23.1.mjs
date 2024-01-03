@@ -60,20 +60,15 @@ function recurse(point, grid, end, vis = {}) {
         }
 
         const allVisited = possible
-            .map((point) => {
-                return recurse(point, grid, end, visited);
-            })
+            .map((point) => recurse(point, grid, end, visited))
             .filter(isDefined);
 
-        let longest = {};
-        allVisited.forEach((v) => {
+        const longest = allVisited.reduce((acc, current) => {
             const isLonger =
-                Object.keys(v).length > Object.keys(longest).length;
+                Object.keys(current).length > Object.keys(acc).length;
 
-            if (isLonger) {
-                longest = v;
-            }
-        });
+            return isLonger ? current : acc;
+        }, {});
 
         visited = { ...visited, ...longest };
 
